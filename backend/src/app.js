@@ -1,0 +1,90 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// Route imports
+const authRoutes = require('./routes/auth');
+const driverRoutes = require('./routes/drivers');
+const routeRoutes = require('./routes/routes');
+const orderRoutes = require('./routes/orders');
+const simulationRoutes = require('./routes/simulation');
+
+// Middleware imports
+const errorHandler = require('./middleware/errorHandler');
+
+const app = express();
+
+// Security middleware
+app.use(helmet());
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  }
+});
+app.use('/api/', limiter);
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'GreenCart Logistics API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/drivers', driverRoutes);
+app.use('/api/routes', routeRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/simulation', simulationRoutes);
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to GreenCart Logistics API',
+    version: '1.0.0',
+    documentation: '/api/docs',
+    endpoints: {
+      auth: '/api/auth',
+      drivers: '/api/drivers',
+      routes: '/api/routes',
+      orders: '/api/orders',
+      simulation: '/api/simulation'
+    }
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+    available_routes: ['/api/auth', '/api/drivers', '/api/routes', '/api/orders', '/api/simulation']
+  });
+});
+
+// Global error handler
+app.use(errorHandler);
+
+module.exports = app;
