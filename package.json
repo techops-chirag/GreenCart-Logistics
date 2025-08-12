@@ -1,0 +1,19 @@
+{
+  "name": "greencart-logistics",
+  "version": "1.0.0",
+  "description": "GreenCart Logistics - Delivery Simulation & KPI Dashboard",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "test": "cd backend && npm test"
+  },
+  "keywords": ["logistics", "delivery", "simulation", "dashboard"],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
