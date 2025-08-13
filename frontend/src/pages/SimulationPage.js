@@ -9,10 +9,7 @@ import {
   Settings, 
   Clock, 
   Users, 
-  AlertCircle,
-  CheckCircle,
-  TrendingUp,
-  DollarSign
+  CheckCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -71,7 +68,7 @@ const SimulationPage = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="w-full flex flex-col space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Delivery Simulation</h1>

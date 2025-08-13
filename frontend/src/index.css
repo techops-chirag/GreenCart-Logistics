@@ -69,3 +69,19 @@
     animation-delay: 600ms;
   }
 }
+
+@layer base {
+  html { font-feature-settings: "cv02","cv03","cv04","cv11"; }
+}
+
+@layer utilities {
+  .card {
+    @apply bg-white rounded-xl shadow-soft border border-gray-100;
+  }
+  .section-title {
+    @apply text-2xl font-semibold text-gray-800 tracking-tight;
+  }
+  .muted {
+    @apply text-sm text-gray-500;
+  }
+}

@@ -11,7 +11,8 @@ import {
   Fuel, 
   Clock,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Play
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -93,7 +94,7 @@ const DashboardPage = () => {
   const { results } = latestSimulation;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -126,7 +127,7 @@ const DashboardPage = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
         <KPICard
           title="Total Profit"
           value={results.total_profit}
@@ -166,13 +167,13 @@ const DashboardPage = () => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
         <DeliveryChart simulationData={results} />
         <FuelCostChart simulationData={results} simulationHistory={simulationHistory} />
       </div>
 
       {/* Detailed Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Breakdown</h3>
           <div className="space-y-3">

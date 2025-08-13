@@ -59,60 +59,66 @@ const authController = {
   },
 
   // Login user
-  login: async (req, res) => {
-    try {
-      const { email, password } = req.body;
+  // Add better error handling and logging
+login: async (req, res) => {
+  try {
+    console.log('Login attempt for:', req.body.email);
+    const { email, password } = req.body;
 
-      // Validate input
-      if (!email || !password) {
-        return res.status(400).json({
-          success: false,
-          message: 'Email and password are required'
-        });
-      }
-
-      // Find user
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
-
-      // Check password
-      const isValidPassword = await user.comparePassword(password);
-      if (!isValidPassword) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
-
-      // Generate token
-      const token = generateToken(user._id);
-
-      res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        data: {
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-          }
-        }
-      });
-    } catch (error) {
-      res.status(500).json({
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
         success: false,
-        message: 'Login failed',
-        error: error.message
+        message: 'Email and password are required'
       });
     }
-  },
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('User not found:', email);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Check password
+    const isValidPassword = await user.comparePassword(password);
+    if (!isValidPassword) {
+      console.log('Invalid password for:', email);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Generate token
+    const token = generateToken(user._id);
+    console.log('Login successful for:', email);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Login failed',
+      error: error.message
+    });
+  }
+},
 
   // Get current user profile
   getProfile: async (req, res) => {

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { driversAPI } from '../services/api';
 import { useForm } from 'react-hook-form';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { 
-  Users, 
+import {  
   Plus, 
   Edit2, 
   Trash2, 
@@ -109,7 +108,7 @@ const DriversPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -126,7 +125,7 @@ const DriversPage = () => {
       </div>
 
       {/* Drivers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
         {drivers.map((driver) => {
           const driverStatus = getDriverStatus(driver);
           const avgHours = (driver.past_week_hours.reduce((sum, h) => sum + h, 0) / 7).toFixed(1);

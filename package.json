@@ -16,10 +16,20 @@
     "deploy:frontend": "cd frontend && npm run build && vercel --prod",
     "deploy:backend": "git push render main"
   },
-  "keywords": ["logistics", "delivery", "simulation", "dashboard", "react", "node.js"],
+  "keywords": [
+    "logistics",
+    "delivery",
+    "simulation",
+    "dashboard",
+    "react",
+    "node.js"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "mongodb": "^6.18.0"
   }
 }

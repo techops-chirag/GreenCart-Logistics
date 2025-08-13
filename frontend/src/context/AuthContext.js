@@ -78,24 +78,39 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await authAPI.login(email, password);
-      
+  try {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    
+    // Clear any existing token first
+    localStorage.removeItem('token');
+    
+    const response = await authAPI.login(email, password);
+    
+    // Verify the response has the expected structure
+    if (response.data && response.data.data && response.data.data.token) {
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: response.data
+        payload: response.data.data
       });
       
       return { success: true };
-    } catch (error) {
-      dispatch({ type: 'AUTH_ERROR' });
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
-      };
+    } else {
+      throw new Error('Invalid response structure');
     }
-  };
+  } catch (error) {
+    console.error('Login error:', error);
+    dispatch({ type: 'AUTH_ERROR' });
+    
+    // Clear any partial tokens
+    localStorage.removeItem('token');
+    
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Login failed. Please try again.' 
+    };
+  }
+};
+
 
   const logout = () => {
     dispatch({ type: 'LOGOUT' });

@@ -27,20 +27,31 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for error handling
+// Update the response interceptor to handle token expiration better
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
+    console.error('API Error:', error.response?.data);
     
-    const message = error.response?.data?.message || 'An error occurred';
-    toast.error(message);
+    if (error.response?.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      // Don't show error toast for 401s during login attempts
+      if (!error.config.url.includes('/auth/login')) {
+        window.location.href = '/login';
+      }
+    } else {
+      const message = error.response?.data?.message || 'An error occurred';
+      // Only show toast for non-auth errors
+      if (!error.config.url.includes('/auth/')) {
+        toast.error(message);
+      }
+    }
     
     return Promise.reject(error);
   }
 );
+
 
 // Auth API
 export const authAPI = {

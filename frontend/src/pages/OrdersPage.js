@@ -11,7 +11,8 @@ import {
   DollarSign,
   Clock,
   Star,
-  TrendingUp
+  TrendingUp,
+  CheckCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -130,7 +131,7 @@ const OrdersPage = () => {
   const avgOrderValue = totalOrders > 0 ? totalValue / totalOrders : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -147,7 +148,7 @@ const OrdersPage = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center space-x-3">
             <Package className="w-8 h-8 text-blue-600" />
