@@ -112,7 +112,15 @@ app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
-    available_routes: ['/api/auth', '/api/drivers', '/api/routes', '/api/orders', '/api/simulation']
+    available_routes: [
+      //'/api/auth', '/api/drivers', '/api/routes', '/api/orders', '/api/simulation'
+    '/api/auth/register',
+  '/api/auth/login',
+  '/api/drivers',
+  '/api/routes',
+  '/api/orders',
+  '/api/simulation'
+    ]
   });
 });
 
