@@ -5,6 +5,8 @@ info:
   description: API documentation for simulation and related endpoints.
 
 servers:
+  - url: https://greencart-backend.up.railway.app
+    description: Production API
   - url: http://localhost:5000
     description: Local server
 
