@@ -18,6 +18,21 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+
+// CORS configuration
+app.use(cors({
+  origin: [
+    'https://greencart-ui.netlify.app',
+    'https://ideal-space-train-p5vg6g57rjrh7jq6-3000.app.github.dev',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
+}));
+
 // Security middleware
 app.use(helmet());
 
@@ -26,23 +41,6 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')}`);
   next();
 });
-
-const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim());
-
-// CORS configuration
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With'],
-  optionsSuccessStatus: 200,
-  preflightContinue: false
-}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -74,12 +72,14 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/drivers', driverRoutes);
-app.use('/api/routes', routeRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/simulation', simulationRoutes);
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'GreenCart Logistics API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -107,8 +107,16 @@ app.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/drivers', driverRoutes);
+app.use('/api/routes', routeRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/simulation', simulationRoutes);
+
+
 // 404 handler
-app.use('*', (req, res) => {
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
