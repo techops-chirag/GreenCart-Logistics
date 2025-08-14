@@ -27,12 +27,16 @@ app.use((req, res, next) => {
   next();
 });
 
+const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim());
+
 // CORS configuration
 app.use(cors({
-  origin: [
-    'https://ideal-space-train-p5vg6g57rjrh7jq6-3000.app.github.dev',
-    'http://localhost:3000'
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With'],
