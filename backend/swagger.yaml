@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: GreenCart Logistics API
+  version: 1.0.0
+  description: API documentation for simulation and related endpoints.
+
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+paths:
+  /api/simulation/run:
+    post:
+      summary: Run a new simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [number_of_drivers, start_time, max_hours_per_day]
+              properties:
+                number_of_drivers:
+                  type: integer
+                  example: 5
+                start_time:
+                  type: string
+                  example: "09:00"
+                max_hours_per_day:
+                  type: integer
+                  example: 8
+      responses:
+        '200':
+          description: Simulation KPIs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResult'
+        '400':
+          description: Invalid request
+  /api/simulation/history:
+    get:
+      summary: Get recent simulation history
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: History list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SimulationResult'
+
+components:
+  schemas:
+    SimulationResult:
+      type: object
+      properties:
+        total_orders:
+          type: integer
+          example: 50
+        on_time:
+          type: integer
+          example: 45
+        late:
+          type: integer
+          example: 5
+        efficiency:
+          type: number
+          example: 90
+        total_fuel_cost:
+          type: number
+          example: 3500
+        total_profit:
+          type: number
+          example: 12000
+        assignments:
+          type: array
+          items:
+            type: object
+            properties:
+              order_id:
+                type: integer
+              driver_name:
+                type: string
+              route_id:
+                type: integer
+              is_on_time:
+                type: boolean
+              bonus_applied:
+                type: boolean
+              penalty_applied:
+                type: boolean
+              fuel_cost:
+                type: number
+              order_value:
+                type: number
+              profit_contribution:
+                type: number
