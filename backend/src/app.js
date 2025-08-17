@@ -18,14 +18,25 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// Security middleware
+app.use(helmet());
 
-// CORS configuration
+// Logger middleware for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')}`);
+  next();
+});
+
+// CORS configuration - allow your frontend + localhost
 app.use(cors({
-  origin: [
-    'https://greencart-ui.netlify.app',
-    'https://ideal-space-train-p5vg6g57rjrh7jq6-3000.app.github.dev',
-    'http://localhost:3000'
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim());
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With'],
@@ -33,18 +44,9 @@ app.use(cors({
   preflightContinue: false
 }));
 
-// Security middleware
-app.use(helmet());
-
-app.use((req, res, next) => {
-  // Log all requests for debugging
-  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')}`);
-  next();
-});
-
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000, // 15 mins
   max: 100,
   message: {
     success: false,
@@ -57,12 +59,12 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Swagger setup
+// Swagger docs
 const swaggerPath = path.join(__dirname, '../swagger.yaml');
 const swaggerDoc = yaml.load(swaggerPath);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-// Health check endpoint
+// Health check endpoints
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -71,7 +73,6 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
-
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -81,56 +82,36 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to GreenCart Logistics API',
-    version: '1.0.0',
-    documentation: '/api/docs',
-    endpoints: {
-      auth: '/api/auth',
-      drivers: '/api/drivers',
-      routes: '/api/routes',
-      orders: '/api/orders',
-      simulation: '/api/simulation'
-    }
-  });
-});
-
-// Handle all OPTIONS requests
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
-
-// API routes
+// Mount API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/simulation', simulationRoutes);
 
-
-// 404 handler
+// API 404 handler - ONLY for /api routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
     available_routes: [
-      //'/api/auth', '/api/drivers', '/api/routes', '/api/orders', '/api/simulation'
-    '/api/auth/register',
-  '/api/auth/login',
-  '/api/drivers',
-  '/api/routes',
-  '/api/orders',
-  '/api/simulation'
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/drivers',
+      '/api/routes',
+      '/api/orders',
+      '/api/simulation'
     ]
   });
 });
+
+// Serve frontend static files and catch-all route in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
 
 // Global error handler
 app.use(errorHandler);
